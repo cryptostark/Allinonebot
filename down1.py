@@ -78,8 +78,9 @@ async def send_vid(bot,m,filename,cc,reply):
       dur = int(helper.duration(filename))
       start_time = time.time()
       try:
-        await m.reply_video(filename,caption=cc, supports_streaming=True,height=720,width=1280,duration=dur, progress=progress_bar,progress_args=(reply,start_time))
+        await m.reply_video(filename,caption=cc, supports_streaming=True,height=720,width=1280,duration=dur)
         await reply.delete (True)
+        os.remove(filename)
       except Exception: pass
   
 @bot.on_message(filters.command(["down"]) & ~filters.edited)
@@ -184,8 +185,7 @@ async def account_login(bot: Client, m: Message):
                         count+=1
                         continue 
                     else:
-                        #print("Video found")
-                        reply = await m.reply_text("Uploading Video")
+                        #reply = await m.reply_text("Uploading Video")
                         try:
                             if thumb == "no":
                                 thumbnail = f"{name}.jpg"
@@ -196,11 +196,7 @@ async def account_login(bot: Client, m: Message):
                             continue
                         await prog.delete (True)
                         start_time = time.time()
-                        
-                        #dur = int(helper.duration(name))
                   await asyncio.gather(*tasks)
-                  
-                  
                 except Exception as e:
                   await m.reply_text(e)
     except Exception as e:
