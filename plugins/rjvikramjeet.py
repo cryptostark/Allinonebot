@@ -101,13 +101,13 @@ async def account_login(bot: Client, m: Message):
     b_data = res1.json()['data']
     cool = ""
     for data in b_data:
-        t_name =data['course_name']
-        FFF = "**BATCH-ID - BATCH NAME - INSTRUCTOR**"
-        aa = f" ```{data['id']}```  - **{data['course_name']}**\n\n"
-        if len(f'{cool}{aa}') > 4096:
-            print(aa)
-            cool = ""
-        cool += aa
+      t_name =data['course_name']
+      FFF = "**BATCH-ID - BATCH NAME - INSTRUCTOR**"
+      aa = f" ```{data['id']}```  - **{data['course_name']}**\n\n"
+      if len(f'{cool}{aa}') > 4096:
+        print(aa)
+        cool = ""
+      cool += aa
     await editable.edit(f'{"**You have these batches :-**"}\n\n{FFF}\n\n{cool}')
     editable1 = await m.reply_text("**Now send the Batch ID to Download**")
     input2 = message = await bot.listen(editable.chat.id)
@@ -137,48 +137,51 @@ async def account_login(bot: Client, m: Message):
     await editable1.delete(True)
     prog = await editable.edit("**Extracting Videos Links Please Wait  📥 **")
     try:
-        mm = "Rgvikramjeet"
-        xv = raw_text3.split('&')
-        for y in range(0,len(xv)):
-            raw_text3 =xv[y]
-            res3 = requests.get("https://rgvikramjeetapi.classx.co.in/get/alltopicfrmlivecourseclass?courseid=" + raw_text2,"&subjectid=" + raw_text3, headers=hdr1)
-            b_data2 = res3.json()['data']
-            for data in b_data2:
-              t_name = (data["topic_name"])
-              tid = (data["topicid"])
-              hdr11 = {
-                      "Host": "rgvikramjeetapi.classx.co.in",
-                      "Client-Service": "Appx",
-                      "Auth-Key": "appxapi",
-                      "User-Id": userid,
-                      "Authorization": token
-                      }
-              par = {
-                  'courseid': raw_text2,'subjectid': raw_text3,'topicid': tid,'start': '-1'}
-              res6 = requests.get('https://rgvikramjeetapi.classx.co.in/get/allconceptfrmlivecourseclass', params=par, headers=hdr11).json()
-              b_data3 = res6['data']
-              for data in b_data3:
-                cid = (data["conceptid"])
-                par2 = {
-                'courseid': raw_text2,'subjectid': raw_text3,'topicid': tid,'conceptid': cid,'start': '-1'
-                 }
-                res4 = requests.get('https://rgvikramjeetapi.classx.co.in/get/livecourseclassbycoursesubtopconceptapiv3', params=par2, headers=hdr11).json()
-                
-                try:
-                  topicid = res4["data"]
-                  for data in topicid:
-                      tn = (data["download_link"])
-                      tid = (data["Title"])
-                      url = decode(tn)
-                      mtext = f"{tid}:{url}\n"
-                      open(f"{mm} - {course_title}.txt", "a").write(mtext)
-                except Exception as e:
-                  error = f"{tid} : {e}"
-                  await m.reply_text(error)
-                  continue
-        await prog.delete(True)        
-        await m.reply_document(f"{mm} - {course_title}.txt",caption = f"```{mm} - {course_title}```" )
-        os.remove(f"{mm} - {course_title}.txt")
+      output_dict = {}
+      videos_dict = {}
+      mm = "Rgvikramjeet"
+      xv = raw_text3.split('&')
+      for y in range(0,len(xv)):
+        raw_text3 =xv[y]
+        res3 = requests.get("https://rgvikramjeetapi.classx.co.in/get/alltopicfrmlivecourseclass?courseid=" + raw_text2,"&subjectid=" + raw_text3, headers=hdr1)
+        b_data2 = res3.json()['data']
+        for data in b_data2:
+          t_name = (data["topic_name"])
+          tid = (data["topicid"])
+          hdr11 = {"Host": "rgvikramjeetapi.classx.co.in",
+                  "Client-Service": "Appx",
+                  "Auth-Key": "appxapi",
+                  "User-Id": userid,
+                  "Authorization": token
+                  }
+          par = {
+              'courseid': raw_text2,'subjectid': raw_text3,'topicid': tid,'start': '-1'}
+          res6 = requests.get('https://rgvikramjeetapi.classx.co.in/get/allconceptfrmlivecourseclass', params=par, headers=hdr11).json()
+          b_data3 = res6['data']
+          for data in b_data3:
+            cid = (data["conceptid"])
+            par2 = {
+            'courseid': raw_text2,'subjectid': raw_text3,'topicid': tid,'conceptid': cid,'start': '-1'
+             }
+            res4 = requests.get('https://rgvikramjeetapi.classx.co.in/get/livecourseclassbycoursesubtopconceptapiv3', params=par2, headers=hdr11).json()
+            try:
+              topicid = res4["data"]
+              for data in topicid:
+                tn = (data["download_link"])
+                tid = (data["Title"])
+                url = decode(tn)
+                videos_dict[tid] = url
+                mtext = f"{tid}:{url}\n"
+                open(f"{mm} - {course_title}.txt", "a").write(mtext)
+              output_dict[t_name] = videos_dict   
+            except Exception as e:
+              error = f"{tid} : {e}"
+              await m.reply_text(error)
+              continue
+      await prog.delete(True)  
+      await m.reply_document(f"{course_title}.json",caption = f"```{mm} - {course_title}.json```" )
+      await m.reply_document(f"{mm} - {course_title}.txt",caption = f"```{mm} - {course_title}```" )
+      os.remove(f"{mm} - {course_title}.txt")
     except Exception as e:
         await m.reply_text(str(e))
     
